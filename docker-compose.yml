@@ -1,0 +1,63 @@
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: nakama-postgres
+    environment:
+      POSTGRES_DB: nakama
+      POSTGRES_USER: nakama
+      POSTGRES_PASSWORD: localpass
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nakama -d nakama"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 512m
+
+  plugin-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    volumes:
+      - plugin_modules:/out
+    entrypoint: ["sh", "-c", "cp -f /backend/modules/tictactoe.so /out/tictactoe.so && echo 'Plugin copied to volume successfully!'"]
+
+  nakama:
+    image: heroiclabs/nakama:3.38.0
+    container_name: nakama-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint:
+      - "/bin/sh"
+      - "-c"
+      - >
+        /nakama/nakama migrate up
+        --database.address "nakama:localpass@postgres:5432/nakama" &&
+        /nakama/nakama
+        --name nakama-tictactoe
+        --database.address "nakama:localpass@postgres:5432/nakama"
+        --logger.level INFO
+        --session.encryption_key "s3cr3tsession"
+        --session.refresh_encryption_key "s3cr3trefresh"
+        --console.signing_key "s3cr3tsigning"
+        --socket.server_key "s3cr3tserver"
+        --runtime.path "/nakama/modules"
+        --console.port 7351
+        --socket.port 7350
+    ports:
+      - "7350:7350"
+      - "7351:7351"
+      - "7349:7349"
+    volumes:
+      - plugin_modules:/nakama/modules
+    mem_limit: 1g
+
+volumes:
+  pgdata:
+  plugin_modules:
