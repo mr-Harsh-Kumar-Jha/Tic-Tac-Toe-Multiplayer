@@ -7,6 +7,7 @@
 import { Socket } from "@heroiclabs/nakama-js";
 import { nakamaClient } from "./client";
 import { getSession } from "./auth.service";
+import { NAKAMA_CONFIG } from "../../config/nakama.config";
 
 let _socket: Socket | null = null;
 let _connected = false;
@@ -25,7 +26,7 @@ export async function getSocket(): Promise<Socket> {
     throw new Error("Must authenticate before connecting socket");
   }
 
-  _socket = nakamaClient.createSocket(false, false);
+  _socket = nakamaClient.createSocket(NAKAMA_CONFIG.useSSL, false);
 
   // Track connection state manually — Socket interface has no isConnected() method.
   _socket.ondisconnect = () => {

@@ -5,19 +5,17 @@
  * Never hardcode host/key in individual services or screens.
  */
 export const NAKAMA_CONFIG = {
-  /** Must match --socket.server_key in docker-compose.yml */
-  serverKey: "s3cr3tserver",
+  /** Must match --socket.server_key in Dockerfile / Engine configuration */
+  serverKey: "defaultkey",
 
   /**
-   * Your Mac's LAN IP.
-   * Physical devices cannot reach 127.0.0.1 (that's the phone's own loopback).
-   * Find your IP with: ipconfig getifaddr en0
+   * Your Public Koyeb Domain
    */
-  host: "192.168.0.101",
+  host: "holy-leoline-streamlen-0b59b8cc.koyeb.app",
 
-  /** Nakama's WebSocket/HTTP port */
-  port: "7350",
+  /** Koyeb's Load Balancer handles traffic natively on port 443 for SSL */
+  port: "443",
 
   /** Set to true for production HTTPS/WSS */
-  useSSL: false,
+  useSSL: true,
 } as const;

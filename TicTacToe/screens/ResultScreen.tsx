@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -17,8 +17,13 @@ type Props = {
 export default function ResultScreen({ navigation }: Props) {
   const { gameState, userId, resetGame } = useStore();
 
+  useEffect(() => {
+    if (!gameState) {
+      navigation.replace("Home");
+    }
+  }, [gameState, navigation]);
+
   if (!gameState) {
-    navigation.replace("Home");
     return null;
   }
 
