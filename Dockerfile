@@ -18,7 +18,14 @@ RUN go mod tidy && \
     -o /backend/modules/tictactoe.so \
     .
 
-# Stage 2 — Final image just holds the compiled .so
-FROM alpine:3.18
-WORKDIR /modules
-COPY --from=builder /backend/modules/tictactoe.so .
+# Stage 2 — Production image containing Nakama and the compiled plugin natively!
+FROM heroiclabs/nakama:3.38.0
+
+# Securely move the plugin right into the engine
+COPY --from=builder /backend/modules/tictactoe.so /nakama/data/modules/tictactoe.so
+
+# Ensure the exposed ports match Koyeb's expectations natively
+EXPOSE 7350 7351
+
+# Hardcode the exact deployment startup sequence so Koyeb doesn't have to guess
+ENTRYPOINT ["/bin/sh", "-c", "/nakama/nakama migrate up --database.address postgres://koyeb-adm:npg_oNAY4CK3hlWq@ep-purple-meadow-agqjhas5.c-2.eu-central-1.pg.koyeb.app/koyebdb && exec /nakama/nakama --name nakama-tictactoe --database.address postgres://koyeb-adm:npg_oNAY4CK3hlWq@ep-purple-meadow-agqjhas5.c-2.eu-central-1.pg.koyeb.app/koyebdb --logger.level INFO --session.encryption_key s3cr3tsession --session.refresh_encryption_key s3cr3trefresh --console.signing_key s3cr3tsigning --socket.server_key defaultkey --runtime.path /nakama/data/modules"]
