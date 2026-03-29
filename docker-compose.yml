@@ -1,23 +1,5 @@
 services:
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: nakama-postgres
-    environment:
-      POSTGRES_DB: nakama
-      POSTGRES_USER: nakama
-      POSTGRES_PASSWORD: localpass
-    ports:
-      - "5433:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nakama -d nakama"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-    mem_limit: 512m
-
   plugin-builder:
     build:
       context: .
@@ -30,18 +12,15 @@ services:
   nakama:
     image: heroiclabs/nakama:3.38.0
     container_name: nakama-server
-    depends_on:
-      postgres:
-        condition: service_healthy
     entrypoint:
       - "/bin/sh"
       - "-c"
       - >
         /nakama/nakama migrate up
-        --database.address "nakama:localpass@postgres:5432/nakama" &&
+        --database.address "postgres://koyeb-adm:npg_oNAY4CK3hlWq@ep-purple-meadow-agqjhas5.c-2.eu-central-1.pg.koyeb.app/koyebdb" &&
         /nakama/nakama
         --name nakama-tictactoe
-        --database.address "nakama:localpass@postgres:5432/nakama"
+        --database.address "postgres://koyeb-adm:npg_oNAY4CK3hlWq@ep-purple-meadow-agqjhas5.c-2.eu-central-1.pg.koyeb.app/koyebdb"
         --logger.level INFO
         --session.encryption_key "s3cr3tsession"
         --session.refresh_encryption_key "s3cr3trefresh"
@@ -59,5 +38,4 @@ services:
     mem_limit: 1g
 
 volumes:
-  pgdata:
   plugin_modules:

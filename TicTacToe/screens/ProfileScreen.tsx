@@ -16,7 +16,7 @@ import type { PlayerProfile } from "../src/types/game.types";
 import { UserRound, Settings, Check, LogOut } from "lucide-react-native";
 
 export default function ProfileScreen() {
-  const { userId, setAuth, resetGame } = useStore();
+  const { userId, deviceId, setAuth, resetGame } = useStore();
   const [profile, setProfile] = useState<PlayerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   
@@ -54,6 +54,7 @@ export default function ProfileScreen() {
       setSaving(true);
       await updateDisplayName(editName.trim());
       await fetchProfile(); // Refresh
+			setAuth(userId, editName.trim(), deviceId); // SYNC STORE
       setIsEditing(false);
     } catch (err: any) {
       Alert.alert("Update Failed", err.message);
