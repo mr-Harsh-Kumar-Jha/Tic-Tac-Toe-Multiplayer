@@ -28,4 +28,4 @@ COPY --from=builder /backend/modules/tictactoe.so /nakama/data/modules/tictactoe
 EXPOSE 8000 7351
 
 # Hardcode the exact deployment startup sequence so Koyeb doesn't have to guess
-ENTRYPOINT ["/bin/sh", "-c", "/nakama/nakama migrate up --database.address postgres://koyeb-adm:npg_oNAY4CK3hlWq@ep-purple-meadow-agqjhas5.c-2.eu-central-1.pg.koyeb.app/koyebdb && exec /nakama/nakama --name nakama-tictactoe --database.address postgres://koyeb-adm:npg_oNAY4CK3hlWq@ep-purple-meadow-agqjhas5.c-2.eu-central-1.pg.koyeb.app/koyebdb --logger.level INFO --session.encryption_key s3cr3tsession --session.refresh_encryption_key s3cr3trefresh --console.signing_key s3cr3tsigning --socket.server_key defaultkey --runtime.path /nakama/data/modules --socket.port 8000"]
+ENTRYPOINT ["/bin/sh", "-c", "/nakama/nakama migrate up --database.address $DB_URL && exec /nakama/nakama --name nakama-tictactoe --database.address $DB_URL --logger.level INFO --session.encryption_key s3cr3tsession --session.refresh_encryption_key s3cr3trefresh --console.signing_key s3cr3tsigning --socket.server_key defaultkey --runtime.path /nakama/data/modules --socket.port 8000"]
